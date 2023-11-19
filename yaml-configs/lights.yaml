@@ -1,0 +1,49 @@
+- platform: template
+  lights:
+    active_lamps:
+      friendly_name: "Active bedroom lamps"
+      level_template: >
+        {% set data = namespace(numbers=[]) %}
+        {% for s in state_attr('group.bedroom_lamps', 'entity_id') %}
+          {% if is_state(s, 'on') %}
+            {% set data.numbers = [state_attr(s, "brightness")] + data.numbers %}
+          {% endif %}
+        {% endfor %}
+        {{data.numbers|average|round(0)}}
+      value_template: >
+        {%- set data = namespace(res="off") -%}
+        {% for s in state_attr('group.bedroom_lamps', 'entity_id') %}
+          {% if is_state(s, 'on') %}
+            {%- set data.res = "on" -%}
+          {% endif %}
+        {%- endfor -%}
+        {{data.res}}
+      temperature_template: >
+        {% set data = namespace(numbers=[]) %}
+        {% for s in state_attr('group.bedroom_lamps', 'entity_id') %}
+          {% if state_attr(s, "color_temp") %}
+            {% set data.numbers = [state_attr(s, "color_temp")] + data.numbers %}
+          {% endif %}
+        {% endfor %}
+        {{data.numbers|average|round(0)}}
+      turn_on:
+        - service: light.turn_on
+          data:
+            entity_id: group.bedroom_lamps
+      turn_off:
+        - service: light.turn_off
+          data:
+            entity_id: group.bedroom_lamps
+      set_level:
+        - service: light.turn_on
+          target:
+            # wat te doen als alles uit staat? If statement om alles aan te zetten
+            entity_id: "{{ expand('group.bedroom_lamps') | selectattr('state','eq','on') | map(attribute='entity_id') | join(',') }}"
+          data:
+            brightness: "{{ brightness }}"
+      set_temperature:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ expand('group.bedroom_lamps') | selectattr('state','eq','on') | map(attribute='entity_id') | join(',') }}"
+          data:
+            color_temp: "{{ color_temp }}"

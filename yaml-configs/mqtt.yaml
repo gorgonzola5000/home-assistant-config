@@ -1,0 +1,5 @@
+device_tracker:
+  - name: "Samsung A52s 5G WiFi"
+    state_topic: "location/maciej_wifi"
+    source_type: router
+    unique_id: "mqtt_person_maciej_wifi"
