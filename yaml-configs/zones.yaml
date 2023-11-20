@@ -1,0 +1,13 @@
+# not my actual home zone
+# to get your actual home coordinates:
+# 1. go to maps.google.com
+# 2. find your home there
+# 3. right click on your home
+# 4. copy and paste the coordinates into this file
+#
+# Statue of Liberty coordinates for reference
+- name: Home
+  latitude: 40.6892752
+  longitude: -74.0445026
+  radius: 250
+  icon: mdi:home
