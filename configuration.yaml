@@ -10,10 +10,12 @@ tts:
   - platform: google_translate
 
 automation: !include yaml-configs/automations.yaml
-script: !include yaml-configs/scripts.yaml
-scene: !include yaml-configs/scenes.yaml
-zone: !include yaml-configs/zones.yaml
-sensor: !include yaml-configs/sensors.yaml
 group: !include yaml-configs/groups.yaml
+http: !include yaml-configs/http.yaml
 light: !include yaml-configs/lights.yaml
 mqtt: !include yaml-configs/mqtt.yaml
+scene: !include yaml-configs/scenes.yaml
+script: !include yaml-configs/scripts.yaml
+#secret: !include yaml-configs/secrets.yaml
+sensor: !include yaml-configs/sensors.yaml
+zone: !include yaml-configs/zones.yaml

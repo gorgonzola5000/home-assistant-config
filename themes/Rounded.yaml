@@ -242,7 +242,7 @@ Rounded:
       }
       .header {
         top: auto !important;
-        bottom: 0; !important
+        bottom: 0 !important;
         transform: translate3d(0px, 0px, 0px) !important;
         background-color: rgba(var(--contrast1-RGB),0.6) !important;
       }
