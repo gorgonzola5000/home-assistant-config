@@ -9,7 +9,7 @@ frontend:
 tts:
   - platform: google_translate
 
-automation: !include yaml-configs/automations.yaml
+automation: !include automations.yaml #HA breaks hardlinks when editing automations and can't read a file that is a symlink, read readme
 group: !include yaml-configs/groups.yaml
 http: !include yaml-configs/http.yaml
 light: !include yaml-configs/lights.yaml
