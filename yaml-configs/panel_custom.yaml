@@ -1,0 +1,9 @@
+- name: ha_automations
+  sidebar_title: Automations
+  sidebar_icon: mdi:robot
+  js_url: /api/hassio/app/entrypoint.js
+  url_path: "config/automation"
+  embed_iframe: true
+  require_admin: true
+  config:
+    ingress: core_configurator
