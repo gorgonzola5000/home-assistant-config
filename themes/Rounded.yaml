@@ -114,6 +114,7 @@ Rounded:
   red: rgb(var(--red-rgb))
   green: rgb(var(--green-rgb))
   blue: rgb(var(--blue-rgb))
+  grey: rgb(var(--grey-rgb))
   # Color tints
   purple-tint: rgba(var(--purple-rgb),var(--color-tint))
   yellow-tint: rgba(var(--yellow-rgb),var(--color-tint))
@@ -121,18 +122,20 @@ Rounded:
   red-tint: rgba(var(--red-rgb),var(--color-tint))
   green-tint: rgba(var(--green-rgb),var(--color-tint))
   blue-tint: rgba(var(--blue-rgb),var(--color-tint))
+  grey-tint: rgba(var(--grey-rgb),var(--color-tint))
   # Gradients
   brightness: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.4) 0%, rgba(var(--brightness-high-rgb), 1) 100%)
   brightness-tint: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.06) 0%, rgba(var(--brightness-high-rgb), var(--color-tint)) 100%)
-  temperature: linear-gradient(90deg, rgba(var(--temperature-low-rgb), 01) 0%, rgba(255,255,255) 15%, rgba(var(--temperature-high-rgb), 1) 100%)
-  temperature-tint: linear-gradient(90deg, rgba(var(--temperature-low-rgb), var(--color-tint)) 0%, rgba(255,255,255, var(--color-tint)) 15%,  rgba(var(--temperature-high-rgb), var(--color-tint)) 100%)
+  temperature: linear-gradient(90deg, rgba(var(--temperature-low-rgb), 1) 0%, rgba(255,255,255) 15%, rgba(241,210,120) 62%, rgba(var(--temperature-high-rgb), 1) 100%)
+  temperature-tint: linear-gradient(90deg, rgba(var(--temperature-low-rgb), var(--color-tint)) 0%, rgba(255,255,255, var(--color-tint)) 15%, rgba(241,210,120, var(--color-tint)) 62%, rgba(var(--temperature-high-rgb), var(--color-tint)) 100%)
   # Color RGB variables
   purple-rgb: 239, 177, 255
-  yellow-rgb: 255, 218, 120
+  yellow-rgb: 241, 210, 120
   orange-rgb: 255, 181, 129
   red-rgb: 255, 145, 138
   green-rgb: 206, 245, 149
   blue-rgb: 144, 191, 255
+  grey-rgb: 192, 192, 192
   # Gradient RGB variables
   brightness-low-rgb: 232, 176, 29
   brightness-high-rgb: 255, 211, 94
@@ -284,7 +287,7 @@ Rounded:
         /* Swipecard full width on mobile */
 
         @media screen and (max-width: 599px) {
-          #columns .column swipe-card {
+          columns .column swipe-card {
             margin-left: -4px;
             margin-right: -4px;
           }
@@ -301,12 +304,6 @@ Rounded:
         font-family: 'Roboto Condensed', sans-serif !important;
       }
 
-      /* Vacuum card load transition disabled */
-
-      .type-custom-xiaomi-vacuum-map-card {
-        transition: none !important;
-      }
-
       /* Graph card style */
 
       .graph {
@@ -317,8 +314,8 @@ Rounded:
       
       .graph .name {
         font-size: 12px;
-        font-family: 'Roboto Condensed'
-        line-height: 18px;
+        font-family: 'Roboto Condensed';
+        line-height: 16px;
         background: var(--black);
         color: var(--white);
         padding: 6px 10px;
@@ -337,6 +334,10 @@ Rounded:
       }
 
       .graph hui-graph-header-footer {
+        order: 3;
+      }
+
+      .graph .footer {
         order: 3;
       }
 
