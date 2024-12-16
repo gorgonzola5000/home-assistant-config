@@ -1,5 +1,6 @@
 bedroom_lamps:
   name: Bedroom lamps
   entities:
-    - light.chandelier_1
+    - light.chandelier
     - light.table_lamp
+    - light.desk_lamp

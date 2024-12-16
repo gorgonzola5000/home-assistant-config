@@ -1,307 +1,419 @@
-- id: '1685484926415'
+- id: "1685484926415"
   alias: Coming home
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id:
-    - zone.home
-    from: '0'
+    - trigger: state
+      entity_id:
+        - zone.home
+      from: "0"
   condition: []
   action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.bedroom_bright
-    metadata: {}
+    - action: scene.turn_on
+      target:
+        entity_id: scene.bedroom_bright
+      metadata: {}
   mode: single
-- id: '1685485971496'
+- id: "1685485971496"
   alias: Leaving home
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id:
-    - zone.home
-    to: '0'
+    - trigger: state
+      entity_id:
+        - zone.home
+      to: "0"
   condition: []
   action:
-  - service: light.turn_off
-    data: {}
-    target:
-      area_id: bedroom
+    - action: light.turn_off
+      data: {}
+      target:
+        area_id: bedroom
   mode: single
-- id: '1685559409214'
+- id: "1685559409214"
   alias: Sunrise
-  description: ''
-  trigger:
-  - platform: template
-    value_template: '{% set x = states(''sensor.sm_a528b_next_alarm'') %} {% if x
-      not in [''unavailable'', ''none'', ''unknown''] %}  {{ now() >= x | as_datetime
-      | as_local - timedelta(minutes=30) }} {%else%} False {% endif %}'
-  condition: []
-  action:
-  - parallel:
+  description: ""
+  triggers:
+    - value_template:
+        "{% set x = states('sensor.sm_a528b_next_alarm') %} {% if x
+        not in ['unavailable', 'none', 'unknown'] %}  {{ now() >= x | as_datetime
+        | as_local - timedelta(minutes=30) }} {%else%} False {% endif %}"
+      trigger: template
+  conditions: []
+  actions:
     - if:
-      - condition: and
-        conditions:
-        - condition: not
+        - condition: and
           conditions:
-          - condition: state
-            entity_id: zone.home
-            state: '0'
-        - condition: state
-          entity_id: light.chandelier_1
-          state: 'off'
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: zone.home
+                  state: "0"
+            - condition: state
+              entity_id: light.bedroom
+              state: "off"
       then:
-      - service: script.hue_gentle_sunrise
-        data: {}
-    - delay:
-        hours: 0
-        minutes: 30
-        seconds: 0
-        milliseconds: 0
-  - service: notify.mobile_app_sm_a528b
-    data:
-      message: command_ringer_mode
-      data:
-        command: normal
+        - parallel:
+            - data: {}
+              action: script.hue_gentle_sunrise
+            - sequence:
+                - delay:
+                    hours: 0
+                    minutes: 30
+                    seconds: 0
+                    milliseconds: 0
+                - data:
+                    message: command_ringer_mode
+                    data:
+                      command: normal
+                  action: notify.mobile_app_sm_a528b
+                  enabled: false
+                - action: script.agenda
+                  metadata: {}
+                  data:
+                    media_volume: 10
   mode: single
 - id: maciej_wifi_status
   alias: Maciej WiFi status
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: sensor.sm_a528b_wifi_connection
-    to:
+    - trigger: state
+      entity_id: sensor.sm_a528b_wifi_connection
+      to:
   action:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ ''Whonnock'' in states(''sensor.sm_a528b_wifi_connection'')
-          }}'
-      sequence:
-      - service: mqtt.publish
-        data:
-          topic: location/maciej_wifi
-          payload: home
-          retain: true
-    default:
-    - service: mqtt.publish
-      data:
-        topic: location/maciej_wifi
-        payload: not_home
-        retain: true
-  initial_state: 'on'
-- id: '1697492399303'
+    - choose:
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ 'Whonnock' in states('sensor.sm_a528b_wifi_connection')
+                }}"
+          sequence:
+            - action: mqtt.publish
+              data:
+                topic: location/maciej_wifi
+                payload: home
+                retain: true
+      default:
+        - action: mqtt.publish
+          data:
+            topic: location/maciej_wifi
+            payload: not_home
+            retain: true
+- id: "1697492399303"
   alias: Aqara H1 Switch
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: single_left
-    to: single_left
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: double_left
-    to: double_left
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: triple_left
-    to: triple_left
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: hold_left
-    to: hold_left
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: single_right
-    to: single_right
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: double_right
-    to: double_right
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: triple_right
-    to: triple_right
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: hold_right
-    to: hold_right
-  - platform: state
-    entity_id:
-    - sensor.aqara_wireless_remote_switch_h1_action
-    attribute: action
-    id: hold_both
-    to: hold_both
-  condition: []
-  action:
-  - parallel:
-    - if:
-      - condition: trigger
-        id:
-        - single_left
-      then:
-      - service: hue.activate_scene
-        data: {}
-        target:
-          entity_id: scene.bedroom_relax
-    - if:
-      - condition: trigger
-        id:
-        - double_left
-      then: []
-    - if:
-      - condition: trigger
-        id:
-        - triple_left
-      then: []
-    - if:
-      - condition: trigger
-        id:
-        - hold_left
-      then:
-      - service: script.going_to_sleep
-        data: {}
-    - if:
-      - condition: trigger
-        id:
-        - single_right
-      then:
-      - service: hue.activate_scene
-        data: {}
-        target:
-          entity_id: scene.bedroom_bright
-    - if:
-      - condition: trigger
-        id:
-        - double_right
-      then: []
-    - if:
-      - condition: trigger
-        id:
-        - triple_right
-      then: []
-    - if:
-      - condition: trigger
-        id:
-        - hold_right
-      then:
-      - service: hue.activate_scene
-        data: {}
-        target:
-          entity_id: scene.bedroom_concentrate
-    - if:
-      - condition: trigger
-        id:
-        - hold_both
-      then:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.bedroom
+  description: ""
+  triggers:
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: single_left
+      to: single_left
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: double_left
+      to: double_left
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: triple_left
+      to: triple_left
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: hold_left
+      to: hold_left
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: single_right
+      to: single_right
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: double_right
+      to: double_right
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: triple_right
+      to: triple_right
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: hold_right
+      to: hold_right
+      trigger: state
+    - entity_id:
+        - sensor.aqara_wireless_remote_switch_h1_action
+      attribute: action
+      id: hold_both
+      to: hold_both
+      trigger: state
+  conditions: []
+  actions:
+    - parallel:
+        - alias: Single left click
+          if:
+            - condition: trigger
+              id:
+                - single_left
+          then:
+            - data: {}
+              action: hue.activate_scene
+              target:
+                entity_id: scene.bedroom_relax
+        - alias: Double left click
+          if:
+            - condition: trigger
+              id:
+                - double_left
+          then:
+            - data:
+                dynamic: false
+              target:
+                entity_id: scene.bedroom_tokyo
+              action: hue.activate_scene
+        - if:
+            - condition: trigger
+              id:
+                - triple_left
+          then: []
+          alias: Triple left click
+        - alias: Hold left
+          if:
+            - condition: trigger
+              id:
+                - hold_left
+          then:
+            - data: {}
+              target:
+                entity_id: scene.bedroom_bright
+              action: hue.activate_scene
+        - if:
+            - condition: trigger
+              id:
+                - single_right
+          then:
+            - data: {}
+              action: script.going_to_sleep
+          alias: Single right click
+        - alias: Double right click
+          if:
+            - condition: trigger
+              id:
+                - double_right
+          then:
+            - data:
+                dynamic: false
+              action: hue.activate_scene
+              target:
+                entity_id: scene.bedroom_read
+        - if:
+            - condition: trigger
+              id:
+                - triple_right
+          then: []
+          alias: Triple right click
+          enabled: true
+        - if:
+            - condition: trigger
+              id:
+                - hold_right
+          then:
+            - data: {}
+              target:
+                entity_id: light.bedroom
+              action: light.turn_off
+          alias: Hold right
+        - alias: Hold both
+          if:
+            - condition: trigger
+              id:
+                - hold_both
+          then:
+            - data: {}
+              target:
+                entity_id: scene.bedroom_concentrate
+              action: hue.activate_scene
   mode: single
-- id: '1701205376723'
+- id: "1701205376723"
   alias: Window open notification
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.window_sensor_contact
-    to: 'on'
-    id: open
-  - platform: state
-    entity_id:
-    - binary_sensor.window_sensor_contact
-    to: 'off'
-    id: closed
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - open
-      sequence:
-      - service: notify.mobile_app_sm_a528b
-        data:
-          message: Your window is currently open!
-          title: Alert
-          data:
-            tag: window-open
-            channel: alert
-            sticky: true
-            persistent: true
-    - conditions:
-      - condition: trigger
-        id:
-        - closed
-      sequence:
-      - service: notify.mobile_app_sm_a528b
-        data:
-          message: clear_notification
-          data:
-            tag: window-open
-            channel: alert
-            sticky: true
-            persistent: true
+  description: ""
+  triggers:
+    - entity_id:
+        - binary_sensor.window_sensor_contact
+      to: "on"
+      id: open
+      trigger: state
+    - entity_id:
+        - binary_sensor.window_sensor_contact
+      to: "off"
+      id: closed
+      trigger: state
+  conditions: []
+  actions:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id:
+                - open
+          sequence:
+            - sequence:
+                - delay:
+                    hours: 0
+                    minutes: 2
+                    seconds: 0
+                    milliseconds: 0
+                - if:
+                    - type: is_open
+                      condition: device
+                      device_id: e68bf611e315cf01d733f509799a025c
+                      entity_id: b8d60b4d5ed0541e5ea452ac7933c380
+                      domain: binary_sensor
+                  then:
+                    - parallel:
+                        - repeat:
+                            count: 2
+                            sequence:
+                              - sequence:
+                                  - delay:
+                                      hours: 0
+                                      minutes: 0
+                                      seconds: 1
+                                      milliseconds: 0
+                                  - device_id: 9d5061b15acdfebee84610d8c2c91043
+                                    domain: light
+                                    entity_id: c193ad41abf6dcd5f06b6e0d17f93803
+                                    type: flash
+                        - data:
+                            message: Your window is currently open!
+                            title: Alert
+                            data:
+                              tag: window-open
+                              channel: Alert
+                              sticky: true
+                              persistent: true
+                          action: notify.mobile_app_sm_a528b
+        - conditions:
+            - condition: trigger
+              id:
+                - closed
+          sequence:
+            - data:
+                message: clear_notification
+                data:
+                  tag: window-open
+                  channel: Alert
+                  sticky: true
+                  persistent: true
+              action: notify.mobile_app_sm_a528b
   mode: single
-- id: '1718126839606'
-  alias: Door open notification
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.door_sensor_contact
-    to: 'on'
-    id: open
-  - platform: state
-    entity_id:
-    - binary_sensor.door_sensor_contact
-    to: 'off'
-    id: closed
-  condition:
-  - condition: state
-    entity_id: zone.home
-    state: '0'
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - open
-      sequence:
-      - parallel:
-        - service: notify.mobile_app_sm_a528b
-          data:
-            message: Your door was opened while you were away!
-            title: Alert
-            data:
-              tag: door-open
-              channel: alert
-              sticky: true
-              persistent: true
-        - service: hue.activate_scene
-          target:
-            entity_id: scene.bedroom_bright
-          data: {}
-    - conditions:
-      - condition: trigger
-        id:
-        - closed
-      sequence: []
+- id: "1718126839606"
+  alias: Door open
+  description: ""
+  triggers:
+    - entity_id:
+        - binary_sensor.door_sensor_contact
+      to: "on"
+      id: open
+      trigger: state
+    - entity_id:
+        - binary_sensor.door_sensor_contact
+      to: "off"
+      id: closed
+      trigger: state
+  conditions:
+    - condition: state
+      entity_id: light.bedroom
+      state: "off"
+  actions:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id:
+                - open
+          sequence:
+            - parallel:
+                - target:
+                    entity_id: scene.bedroom_bright
+                  data: {}
+                  action: hue.activate_scene
+                - if:
+                    - condition: state
+                      entity_id: zone.home
+                      state: "0"
+                  then:
+                    - action: notify.mobile_app_sm_a528b
+                      metadata: {}
+                      data:
+                        message: Your door was opened while you were away!
+                        title: Alert
+                        data:
+                          tag: door-open
+                          channel: Alert
+                          sticky: false
+                          persistent: false
+        - conditions:
+            - condition: trigger
+              id:
+                - closed
+          sequence: []
+  mode: single
+- id: "1731513876402"
+  alias: Motion detection activated lights
+  description: ""
+  triggers:
+    - type: occupied
+      device_id: cd0a0618509dc5e36202b3c2016a91fb
+      entity_id: 2e8354237f77ebcb503b9ac9d3f5b457
+      domain: binary_sensor
+      metadata:
+        secondary: false
+      trigger: device
+  conditions:
+    - condition: state
+      entity_id: light.bedroom
+      state: "off"
+  actions:
+    - choose:
+        - conditions:
+            - condition: sun
+              before: sunrise
+              after: sunset
+          sequence:
+            - action: scene.turn_on
+              metadata: {}
+              target:
+                entity_id: scene.bedroom_nightlight
+        - conditions:
+            - condition: sun
+              before: sunset
+              after: sunrise
+          sequence:
+            - action: scene.turn_on
+              metadata: {}
+              target:
+                entity_id: scene.bedroom_relax
+  mode: single
+- id: "1733511127039"
+  alias: Disable charger once battery is full
+  description: ""
+  triggers:
+    - trigger: state
+      entity_id:
+        - sensor.sm_a528b_battery_state
+      from: charging
+      to: full
+  conditions: []
+  actions:
+    - type: turn_off
+      device_id: 280389350d561c480912944fa34787ac
+      entity_id: e623a167c57a4f99ba135e1528a9d09c
+      domain: switch
   mode: single

@@ -1,0 +1,4 @@
+- sensor:
+    - name: "Bedroom lights color mode"
+      unique_id: "sensor.bedroom_lights_color_mode"
+      state: "{{ state_attr('light.bedroom', 'color_mode') }}"

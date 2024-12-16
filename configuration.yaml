@@ -3,7 +3,7 @@ default_config:
 
 # Load frontend themes from the themes folder
 frontend:
-  themes: !include_dir_merge_named themes/
+  themes: !include_dir_merge_named themes
 
 # Text to speech
 tts:
@@ -14,8 +14,10 @@ group: !include yaml-configs/groups.yaml
 http: !include yaml-configs/http.yaml
 light: !include yaml-configs/lights.yaml
 mqtt: !include yaml-configs/mqtt.yaml
+panel_custom: !include yaml-configs/panel_custom.yaml
 scene: !include yaml-configs/scenes.yaml
-script: !include yaml-configs/scripts.yaml
+script: !include scripts.yaml
 #secret: !include yaml-configs/secrets.yaml
 sensor: !include yaml-configs/sensors.yaml
+template: !include yaml-configs/template.yaml
 zone: !include yaml-configs/zones.yaml

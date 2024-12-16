@@ -1,0 +1,150 @@
+hue_gentle_sunrise:
+  alias: Philips Hue sunrise
+  sequence:
+    - action: light.turn_on
+      data:
+        xy_color:
+          - 0.561
+          - 0.404
+        brightness: 25
+      target:
+        entity_id: light.bedroom
+      enabled: true
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - action: light.turn_on
+      data:
+        xy_color:
+          - 0.65
+          - 0.41
+        brightness: 85
+        transition: 600
+      target:
+        entity_id: light.bedroom
+      enabled: true
+    - delay:
+        hours: 0
+        minutes: 10
+        seconds: 0
+        milliseconds: 0
+      enabled: true
+    - action: light.turn_on
+      data:
+        xy_color:
+          - 0.6
+          - 0.4
+        brightness: 170
+        transition: 600
+      target:
+        entity_id: light.bedroom
+      enabled: true
+    - delay:
+        hours: 0
+        minutes: 10
+        seconds: 0
+        milliseconds: 0
+      enabled: true
+    - action: hue.activate_scene
+      data:
+        transition: 600
+      target:
+        entity_id: scene.bedroom_bright
+      enabled: true
+  mode: single
+  icon: mdi:weather-sunny
+going_to_sleep:
+  alias: Going to sleep
+  sequence:
+    - parallel:
+        - action: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.bedroom_nightlight
+        - action: notify.mobile_app_sm_a528b
+          data:
+            message: command_ringer_mode
+            data:
+              command: silent
+  mode: single
+  icon: mdi:sleep
+agenda:
+  alias: Agenda
+  sequence:
+    - variables:
+        tts_duration_for_each_event_in_seconds: 5
+        tts_duration_base_in_seconds: 10
+        tts_media_volume: 10
+    - action: notify.mobile_app_sm_a528b
+      data:
+        message: "command_volume_level"
+        data:
+          ttl: 0
+          priority: high
+          media_stream: "music_stream"
+          command: "{{ tts_media_volume }}"
+    - action: calendar.get_events
+      metadata: {}
+      data:
+        duration:
+          hours: 24
+          minutes: 0
+          seconds: 0
+        start_date_time: "{{ now().date() }} 00:00:00"
+      target:
+        entity_id:
+          - calendar.gorgonzola5000x_gmail_com
+          - calendar.plan_zajec_inf04
+      response_variable: agenda
+    - action: notify.mobile_app_sm_a528b
+      data:
+        message: TTS
+        data:
+          ttl: 0
+          priority: high
+          tts_text: >-
+            {% set cat_agenda = agenda["calendar.gorgonzola5000x_gmail_com"]["events"] + agenda["calendar.plan_zajec_inf04"]["events"] %}
+            {% set sorted_agenda = cat_agenda | sort(attribute="start") %}
+            {% set birthdays = [] %}
+            Good morning! --
+            It is {{ states('sensor.time') }}. Today is {{ now().strftime("%A") }} --
+            Today's events are:
+            {% for event in sorted_agenda %}
+              {% if "'s birthday" not in event %}
+                {{ event.summary }} - at {{ event.start.split('T')[1].split(':')[0:2] | join(':') }} --
+              {% else %}
+                {% set name = event.split("'")[0] %}
+                {% set _ = birthdays.append(name) %}
+              {% endif %}
+            {% endfor %}
+            {% for birthday in birthdays %}
+              It's {{ birthday }}'s today! --
+            {% endfor %}
+            That's all!
+      alias: TTS message
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: '{{ (sorted_agenda | length * tts_duration_for_each_event_in_seconds) + tts_duration_base_in_seconds }}'
+        milliseconds: 0
+      alias: Delay for the time of TTS
+    - action: notify.mobile_app_sm_a528b
+      data:
+        message: command_ringer_mode
+        data:
+          command: normal
+      alias: Unmute ringer
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - alias: Set media volume
+      action: notify.mobile_app_sm_a528b
+      data:
+        message: command_volume_level
+        data:
+          media_stream: music_stream
+          command: "0"
