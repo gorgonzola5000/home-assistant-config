@@ -7,3 +7,10 @@
     - "date_time_iso"
     - "time_date"
     - "time_utc"
+- platform: template
+  sensors:
+    outdoor_temperature:
+      icon_template: "mdi:thermometer"
+      friendly_name: Outdoor temperature
+      unit_of_measurement: "°C"
+      value_template: "{{ state_attr('weather.forecast_home', 'temperature') | float }}"

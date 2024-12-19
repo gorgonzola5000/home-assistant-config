@@ -60,16 +60,13 @@
                     minutes: 30
                     seconds: 0
                     milliseconds: 0
-                - data:
-                    message: command_ringer_mode
-                    data:
-                      command: normal
-                  action: notify.mobile_app_sm_a528b
-                  enabled: false
+                - delay:
+                    hours: 0
+                    minutes: 1
+                    seconds: 0
+                    milliseconds: 0
                 - action: script.agenda
                   metadata: {}
-                  data:
-                    media_volume: 10
   mode: single
 - id: maciej_wifi_status
   alias: Maciej WiFi status
@@ -264,55 +261,69 @@
               id:
                 - open
           sequence:
-            - sequence:
-                - delay:
-                    hours: 0
-                    minutes: 2
-                    seconds: 0
-                    milliseconds: 0
-                - if:
-                    - type: is_open
-                      condition: device
-                      device_id: e68bf611e315cf01d733f509799a025c
-                      entity_id: b8d60b4d5ed0541e5ea452ac7933c380
-                      domain: binary_sensor
-                  then:
-                    - parallel:
-                        - repeat:
-                            count: 2
-                            sequence:
-                              - sequence:
-                                  - delay:
-                                      hours: 0
-                                      minutes: 0
-                                      seconds: 1
-                                      milliseconds: 0
-                                  - device_id: 9d5061b15acdfebee84610d8c2c91043
-                                    domain: light
-                                    entity_id: c193ad41abf6dcd5f06b6e0d17f93803
-                                    type: flash
-                        - data:
-                            message: Your window is currently open!
-                            title: Alert
-                            data:
-                              tag: window-open
-                              channel: Alert
-                              sticky: true
-                              persistent: true
-                          action: notify.mobile_app_sm_a528b
+            - parallel:
+                - action: script.notification_when_something_happens_and_you_are_away
+                  metadata: {}
+                  data:
+                    message: Bedroom window was opened
+                - sequence:
+                    - delay:
+                        hours: 0
+                        minutes: 5
+                        seconds: 0
+                        milliseconds: 0
+                    - if:
+                        - type: is_open
+                          condition: device
+                          device_id: e68bf611e315cf01d733f509799a025c
+                          entity_id: b8d60b4d5ed0541e5ea452ac7933c380
+                          domain: binary_sensor
+                          for:
+                            hours: 0
+                            minutes: 0
+                            seconds: 0
+                      then:
+                        - parallel:
+                            - repeat:
+                                count: 2
+                                sequence:
+                                  - sequence:
+                                      - delay:
+                                          hours: 0
+                                          minutes: 0
+                                          seconds: 0
+                                          milliseconds: 750
+                                      - device_id: 9d5061b15acdfebee84610d8c2c91043
+                                        domain: light
+                                        entity_id: c193ad41abf6dcd5f06b6e0d17f93803
+                                        type: flash
+                            - data:
+                                message: Your window is currently open!
+                                title: Alert
+                                data:
+                                  tag: window-open
+                                  channel: Alert
+                                  sticky: true
+                                  persistent: true
+                              action: notify.mobile_app_sm_a528b
         - conditions:
             - condition: trigger
               id:
                 - closed
           sequence:
-            - data:
-                message: clear_notification
-                data:
-                  tag: window-open
-                  channel: Alert
-                  sticky: true
-                  persistent: true
-              action: notify.mobile_app_sm_a528b
+            - parallel:
+                - action: script.notification_when_something_happens_and_you_are_away
+                  metadata: {}
+                  data:
+                    message: Bedroom window was closed
+                - data:
+                    message: clear_notification
+                    data:
+                      tag: window-open
+                      channel: Alert
+                      sticky: true
+                      persistent: true
+                  action: notify.mobile_app_sm_a528b
   mode: single
 - id: "1718126839606"
   alias: Door open
@@ -340,30 +351,22 @@
                 - open
           sequence:
             - parallel:
-                - target:
-                    entity_id: scene.bedroom_bright
+                - action: script.bedroom_lights_turn_on
+                  metadata: {}
                   data: {}
-                  action: hue.activate_scene
-                - if:
-                    - condition: state
-                      entity_id: zone.home
-                      state: "0"
-                  then:
-                    - action: notify.mobile_app_sm_a528b
-                      metadata: {}
-                      data:
-                        message: Your door was opened while you were away!
-                        title: Alert
-                        data:
-                          tag: door-open
-                          channel: Alert
-                          sticky: false
-                          persistent: false
+                - action: script.notification_when_something_happens_and_you_are_away
+                  metadata: {}
+                  data:
+                    message: Bedroom door was opened
         - conditions:
             - condition: trigger
               id:
                 - closed
-          sequence: []
+          sequence:
+            - action: script.notification_when_something_happens_and_you_are_away
+              metadata: {}
+              data:
+                message: Bedroom door was closed
   mode: single
 - id: "1731513876402"
   alias: Motion detection activated lights
@@ -381,25 +384,9 @@
       entity_id: light.bedroom
       state: "off"
   actions:
-    - choose:
-        - conditions:
-            - condition: sun
-              before: sunrise
-              after: sunset
-          sequence:
-            - action: scene.turn_on
-              metadata: {}
-              target:
-                entity_id: scene.bedroom_nightlight
-        - conditions:
-            - condition: sun
-              before: sunset
-              after: sunrise
-          sequence:
-            - action: scene.turn_on
-              metadata: {}
-              target:
-                entity_id: scene.bedroom_relax
+    - action: script.bedroom_lights_turn_on
+      metadata: {}
+      data: {}
   mode: single
 - id: "1733511127039"
   alias: Disable charger once battery is full

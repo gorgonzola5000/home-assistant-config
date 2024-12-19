@@ -79,11 +79,11 @@ agenda:
         tts_media_volume: 10
     - action: notify.mobile_app_sm_a528b
       data:
-        message: "command_volume_level"
+        message: command_volume_level
         data:
           ttl: 0
           priority: high
-          media_stream: "music_stream"
+          media_stream: music_stream
           command: "{{ tts_media_volume }}"
     - action: calendar.get_events
       metadata: {}
@@ -127,7 +127,7 @@ agenda:
     - delay:
         hours: 0
         minutes: 0
-        seconds: '{{ (sorted_agenda | length * tts_duration_for_each_event_in_seconds) + tts_duration_base_in_seconds }}'
+        seconds: "{{ (sorted_agenda | length * tts_duration_for_each_event_in_seconds) + tts_duration_base_in_seconds }}"
         milliseconds: 0
       alias: Delay for the time of TTS
     - action: notify.mobile_app_sm_a528b
@@ -148,3 +148,47 @@ agenda:
         data:
           media_stream: music_stream
           command: "0"
+bedroom_lights_turn_on:
+  alias: Bedroom lights turn on
+  sequence:
+    - if:
+        - condition: sun
+          before: sunset
+          after: sunrise
+      then:
+        - action: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.bedroom_bright
+      else:
+        - action: hue.activate_scene
+          data: {}
+          target:
+            entity_id: scene.bedroom_relax
+  description: Turn on a proper Philips Hue scene for bedroom depending on sun position
+  icon: mdi:lightbulb-group
+notification_when_something_happens_and_you_are_away:
+  alias: Notification when something happens and you are away
+  sequence:
+    - if:
+        - condition: state
+          entity_id: zone.home
+          state: "0"
+      then:
+        - action: notify.mobile_app_sm_a528b
+          metadata: {}
+          data:
+            message: "{{ message }} while you were away!"
+            title: Alert
+            data:
+              channel: Alert
+              sticky: false
+              persistent: false
+  fields:
+    message:
+      selector:
+        text:
+      name: message
+      description: 'Notification will be like: "[message] while you were away!"'
+      required: true
+  description: If something happens and you are not home, send a notification
